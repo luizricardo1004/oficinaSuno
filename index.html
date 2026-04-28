@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lógica Punk em Harmonia</title>
+    <!-- Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para os ícones de Play/Pause -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Estilização customizada para a linha do tempo (Range Input) */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #ec4899; /* Cor rosa neon (Tailwind pink-500) */
+            cursor: pointer;
+            margin-top: -6px; /* Centraliza a bolinha na trilha */
+            box-shadow: 0 0 10px #ec4899;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #4b5563; /* Cor da trilha (Tailwind gray-600) */
+            border-radius: 2px;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+        
+        /* Ajuste para Firefox */
+        input[type=range]::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #ec4899;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px #ec4899;
+        }
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #4b5563;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<!-- Imagem de fundo temática de tecnologia/setup -->
+<body class="min-h-screen bg-cover bg-center bg-fixed font-sans flex items-center justify-center p-4 md:p-8 text-gray-100" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1920&auto=format&fit=crop');">
+    
+    <!-- Container Principal com efeito Glassmorphism -->
+    <div class="bg-gray-900/80 backdrop-blur-lg w-full max-w-4xl p-6 md:p-10 rounded-2xl shadow-2xl border border-gray-700">
+        
+        <!-- Cabeçalho -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-cyan-400 mb-2 uppercase tracking-wider">
+                Lógica Punk em Harmonia
+            </h1>
+            <p class="text-cyan-300 font-mono text-sm md:text-base">A revolução do código começou!</p>
+        </div>
+
+        <!-- Seção do Player de Áudio -->
+        <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-600 mb-8 shadow-inner">
+            <h2 class="text-xl font-bold mb-4 text-pink-400 font-mono"><i class="fas fa-music mr-2"></i>Música Original</h2>
+            
+            <!-- Elemento de áudio oculto (usando um áudio de domínio público como placeholder) -->
+            <audio id="audio-player" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+            
+            <div class="flex flex-col md:flex-row items-center gap-4">
+                <!-- Botão Play/Pause -->
+                <button id="play-btn" class="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform shadow-[0_0_15px_rgba(236,72,153,0.5)] focus:outline-none shrink-0" aria-label="Tocar ou pausar música">
+                    <i id="play-icon" class="fas fa-play text-xl ml-1"></i>
+                </button>
+                
+                <!-- Linha do Tempo e Tempos -->
+                <div class="flex-grow w-full flex items-center gap-4 font-mono text-sm text-gray-300">
+                    <span id="current-time" class="w-10 text-right">0:00</span>
+                    <input type="range" id="progress-bar" min="0" max="100" value="0" class="flex-grow">
+                    <span id="total-time" class="w-10">0:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção do Vídeo do YouTube -->
+        <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-600 shadow-inner">
+            <h2 class="text-xl font-bold mb-4 text-cyan-400 font-mono"><i class="fab fa-youtube mr-2"></i>Videoclipe Oficial</h2>
+            
+            <!-- Container responsivo para o iFrame -->
+            <div class="relative w-full overflow-hidden rounded-lg shadow-lg bg-black" style="padding-top: 56.25%;">
+                <!-- Substitua o ID 'LXb3EKWsInQ' pelo ID do vídeo desejado -->
+                <iframe 
+                    class="absolute top-0 left-0 w-full h-full border-0"
+                    src="https://www.youtube.com/embed/LXb3EKWsInQ" 
+                    title="YouTube video player" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts do Player de Áudio -->
+    <script>
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalTimeEl = document.getElementById('total-time');
+
+        let isPlaying = false;
+
+        // Formata o tempo em Minutos:Segundos
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        // Alterna entre Play e Pause
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                audio.pause();
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+                // Ajuste visual pro ícone de play ficar centralizado
+                playIcon.classList.add('ml-1'); 
+            } else {
+                audio.play();
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+                // Ajuste visual pro ícone de pause
+                playIcon.classList.remove('ml-1'); 
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Atualiza a linha do tempo e o tempo atual enquanto a música toca
+        audio.addEventListener('timeupdate', () => {
+            const currentTime = audio.currentTime;
+            const duration = audio.duration;
+            
+            if (!isNaN(duration)) {
+                // Atualiza o valor do input range
+                progressBar.value = (currentTime / duration) * 100;
+                // Atualiza o texto do tempo
+                currentTimeEl.textContent = formatTime(currentTime);
+            }
+        });
+
+        // Carrega o tempo total quando os metadados do áudio são carregados
+        audio.addEventListener('loadedmetadata', () => {
+            totalTimeEl.textContent = formatTime(audio.duration);
+        });
+
+        // Permite avançar ou retroceder a música arrastando a barra
+        progressBar.addEventListener('input', () => {
+            const duration = audio.duration;
+            if (!isNaN(duration)) {
+                audio.currentTime = (progressBar.value / 100) * duration;
+            }
+        });
+
+        // Quando a música acaba, reseta o botão para Play
+        audio.addEventListener('ended', () => {
+            isPlaying = false;
+            playIcon.classList.remove('fa-pause');
+            playIcon.classList.add('fa-play');
+            playIcon.classList.add('ml-1');
+            progressBar.value = 0;
+            currentTimeEl.textContent = "0:00";
+        });
+    </script>
+</body>
+</html>
